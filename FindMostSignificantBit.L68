@@ -1,0 +1,82 @@
+00001000 Starting Address
+Assembler used: EASy68K Editor/Assembler v5.16.01
+Created On: 11/25/2019 3:22:30 PM
+
+00000000                             1  *-----------------------------------------------------------
+00000000                             2  * Title      :  HW5 #15
+00000000                             3  * Written by :  Kyle Dukart 
+00000000                             4  * Date       :  11/25/19
+00000000                             5  * Description:  Most significant bit finder
+00000000                             6  *-----------------------------------------------------------
+00000000  =0000000D                  7  CR  EQU $0D
+00000000  =0000000A                  8  LF  EQU $0A
+00000000                             9  
+00001000                            10      ORG    $1000
+00001000                            11  START:                  ; first instruction of program
+00001000                            12  
+00001000                            13  * Put program code here
+00001000                            14  
+00001000  103C 000E                 15      MOVE.B  #14, D0
+00001004  43F9 00001054             16      LEA INPUTMSG,A1
+0000100A  4E4F                      17      TRAP #15        ; ask user for input
+0000100C                            18      
+0000100C  103C 0004                 19      MOVE.B  #4, D0
+00001010  4E4F                      20      TRAP #15        ; get keyboard input into D1
+00001012                            21      
+00001012  4243                      22      CLR D3          ; D3 is used as a counter
+00001014                            23  MSB_LOOP:
+00001014  2401                      24      MOVE.L D1, D2     ; make a working copy of input into D2
+00001016  C4BC 80000000             25      AND.L #MASK, D2   ; mask the first bit of D2
+0000101C  B4BC 80000000             26      CMP.L   #MASK, D2   ; check if first bit is 1
+00001022  6700 0012                 27      BEQ MSB_FOUND       ; if first bit is 1 jump to found
+00001026  5243                      28      ADDQ    #1, D3      ; add 1 to counter
+00001028  B67C 001F                 29      CMP     #31, D3     ; check if we are still in the loop
+0000102C  E389                      30      LSL.L   #1, D1          ; shift the input number 1 bit to the left
+0000102E  66E4                      31      BNE MSB_LOOP        ; loop
+00001030  78FF                      32      MOVE.L #-1, D4        ; if we exit loop without finding MSB, enter -1
+00001032  6000 0006                 33      BRA OUTPUT          
+00001036                            34      
+00001036                            35  MSB_FOUND:
+00001036  781F                      36      MOVE.L    #31, D4
+00001038  9883                      37      SUB.L     D3, D4      ; correct MSB counter by doing (15 - counter = MSB)
+0000103A                            38  
+0000103A                            39  OUTPUT:
+0000103A  2404                      40      MOVE.L D4, D2         ; answer is required to be in D2
+0000103C                            41  
+0000103C  103C 000E                 42      MOVE.B  #14, D0
+00001040  43F9 0000108D             43      LEA OUTPUTMSG,A1
+00001046  4E4F                      44      TRAP #15        ; output message
+00001048                            45      
+00001048  103C 0003                 46      MOVE.B  #3, D0
+0000104C  2202                      47      MOVE.L D2, D1
+0000104E  4E4F                      48      TRAP #15               ; output answer
+00001050                            49  
+00001050                            50  
+00001050  FFFF FFFF                 51      SIMHALT             ; halt simulator
+00001054                            52  
+00001054                            53  * Put variables and constants here
+00001054                            54  
+00001054= 50 6C 65 61 73 65 ...     55  INPUTMSG DC.B 'Please enter a decimal number between 0 and 4294967295', CR, LF, 0
+0000108D= 54 68 65 20 6D 6F ...     56  OUTPUTMSG DC.B 'The most significant bit is (-1 if not found):', CR, LF, 0
+000010BE                            57  
+000010BE                            58  
+000010BE  =80000000                 59  MASK    EQU     $80000000
+000010BE                            60  
+000010BE                            61      END    START        ; last line of source
+
+No errors detected
+No warnings generated
+
+
+SYMBOL TABLE INFORMATION
+Symbol-name         Value
+-------------------------
+CR                  D
+INPUTMSG            1054
+LF                  A
+MASK                80000000
+MSB_FOUND           1036
+MSB_LOOP            1014
+OUTPUT              103A
+OUTPUTMSG           108D
+START               1000
